@@ -1,14 +1,22 @@
+require('dotenv').config();
 const User = require('../models/user')
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const auth = require('../middleware/auth');
 const { check, validationResult } = require('express-validator');
+const express = require('express')
+const router = express.Router();
 
 // Secret key for JWT
-const JWT_SECRET = 'your_jwt_secret';
+const JWT_SECRET = process.env.JWT_SECRET_CODE;
+if (!process.env.MONGODB_URL || !process.env.JWT_SECRET_CODE || !process.env.API_KEY) {
+    console.error('Please set all environment variables');
+    process.exit(1);
+}
+
 
 // user signup
-app.post('/signup', [
+router.post('/signup', [
     check('email', 'Please include a valid email').isEmail(),
     check('password', 'Password must be at least 6 characters').isLength({ min: 6 })
 ], async (req, res) => {
@@ -25,10 +33,14 @@ app.post('/signup', [
             return res.status(400).json({ msg: 'User already exists' });
         }
 
+         // Hash the password before saving
+         const salt = await bcrypt.genSalt(10);
+         const hashedPassword = await bcrypt.hash(password, salt);
+
         user = new User({
             username,
             email,
-            password
+            hashedPassword
         });
 
         await user.save();
@@ -41,16 +53,12 @@ app.post('/signup', [
         res.json({ token });
     } catch (error) {
         console.error(error.message);
-        if (err.code === 11000) {
-            // Handle duplicate key error (username or email)
-            return res.status(400).json({ message: 'Username or email already exists' });
-        }
         res.status(500).send('Server Error')
     }
 });
 
 // User Login
-app.post('/login', [
+router.post('/login', [
     check('email', 'Please include a valid email').isEmail(),
     check('password', 'Password is required').exists()
 ], async (req, res) => {
@@ -85,7 +93,7 @@ app.post('/login', [
 });
 
 // Get All Users (protected route)
-app.get('/users', auth, async (req, res) => {
+router.get('/users', auth, async (req, res) => {
     try {
         const users = await User.find().select('-password');
         res.status(200).send(users);
@@ -95,7 +103,7 @@ app.get('/users', auth, async (req, res) => {
 });
 
 // Get Profile of Authenticated User (protected route)
-app.get('/profile', auth, async (req, res) => {
+router.get('/profile', auth, async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select('-password');
         res.json(user);
@@ -103,3 +111,5 @@ app.get('/profile', auth, async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
+
+module.exports = router;

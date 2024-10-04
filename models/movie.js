@@ -1,30 +1,30 @@
 const mongoose = require('mongoose')
 
 const movieSchema = new mongoose.Schema({
-    title: {
-        type: String,
-        require: true,
-        unique: true
+    title: { 
+        type: String, 
+        required: true, 
+        unique: true 
     },
-    description: {
-        type: String,
-        require: true,
-        unique: true
+    description: { 
+        type: String, 
+        required: true 
     },
-    genre: {
-        type: String,
-        require: true,
-        unique: true
+    genre: { 
+        type: String, 
+        required: true 
     },
-    releaseDate: {
-        type: String,
-        require: true,
-        unique: true
+    releaseDate: { 
+        type: String, 
+        required: true 
     },
-    createdAt: {
-        type: String,
-        require: true,
-        unique: true
+    tmdbId: { 
+        type: Number, 
+        unique: true 
+    },  // Store TMDB ID for reference
+    createdAt: { 
+        type: Date, 
+        default: Date.now 
     }
 })
 
