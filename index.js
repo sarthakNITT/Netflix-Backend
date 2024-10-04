@@ -20,7 +20,7 @@ app.get('/', (req,res)=>{
 
 // Use the routes from user.js
 app.use('/api/auth', userRoutes); // All routes will be prefixed with /api/auth
-app.use('/api', movieRoutes); // All routes will be prefixed with /api/auth
+app.use('/api', movieRoutes); // All routes will be prefixed with /api
 
 connectDB();
 

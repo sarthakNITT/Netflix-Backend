@@ -106,6 +106,8 @@ router.get('/users', auth, async (req, res) => {
 
 // Get Profile of Authenticated User (protected route)
 router.get('/profile', auth, async (req, res) => {
+    console.log('Profile route hit'); // Add this for debugging
+
     try {
         const user = await User.findById(req.user.id).select('-password');
         res.json(user);
