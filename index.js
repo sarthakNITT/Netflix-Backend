@@ -8,6 +8,9 @@ const Port = 3001
 // Import the routes from user.js
 const userRoutes = require('./route/user');
 
+// Import the routes from movie.js
+const movieRoutes = require('./route/movie');
+
 //Middleware to parse the json files
 app.use(express.json()) 
 
@@ -17,6 +20,7 @@ app.get('/', (req,res)=>{
 
 // Use the routes from user.js
 app.use('/api/auth', userRoutes); // All routes will be prefixed with /api/auth
+app.use('/api', movieRoutes); // All routes will be prefixed with /api/auth
 
 connectDB();
 

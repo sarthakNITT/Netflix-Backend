@@ -1,8 +1,11 @@
+const express = require('express');
 const Movie = require('../models/movie')
 const auth = require('../middleware/auth');
-const { getPopularMovies, searchMovies, getMovieDetails } = require('../tmdb');
+const { getPopularMovies, searchMovies, getMovieDetails } = require('../api/tmdb');
 
-app.post('/movies', auth, async (req, res) => {
+const router = express.Router(); // Use Router to define the routes
+
+router.post('/movies', auth, async (req, res) => {
     const {title, description, genre, releaseDate} = req.body;
 
     try {
@@ -13,19 +16,17 @@ app.post('/movies', auth, async (req, res) => {
             releaseDate
         })
         await movie.save()
-        res.send('Movie created')   
-        res.status(201).json(movie)
+        res.status(201).json({
+            message: 'Movie created',
+            movie: movie
+        });
     } catch (error) {
         console.error(error.message);
-        if (err.code === 11000) {
-            // Handle duplicate key error (username or email)
-            return res.status(400).json({ message: 'Username or email already exists' });
-        }
         res.status(500).send('Server Error')
     }
 });
 
-app.get('/movies',auth, async (req, res) => {
+router.get('/movies',auth, async (req, res) => {
     try {
         const movie = await Movie.find();
         res.status(200).json(movie);
@@ -34,7 +35,7 @@ app.get('/movies',auth, async (req, res) => {
     }
 });
 
-app.get('/movies/:id', auth, async (req, res) => {
+router.get('/movies/:id', auth, async (req, res) => {
     try {
         const movie = await Movie.findById(req.params.id);
         if (!movie) return res.status(404).json({ msg: 'Movie not found' });
@@ -45,7 +46,7 @@ app.get('/movies/:id', auth, async (req, res) => {
 });
 
 // Update a Movie
-app.put('/movies/:id', auth, async (req, res) => {
+router.put('/movies/:id', auth, async (req, res) => {
     const { title, description, genre, releaseDate } = req.body;
     
     const updatedMovie = { title, description, genre, releaseDate };
@@ -60,7 +61,7 @@ app.put('/movies/:id', auth, async (req, res) => {
 });
 
 // Delete a Movie
-app.delete('/movies/:id', auth, async (req, res) => {
+router.delete('/movies/:id', auth, async (req, res) => {
     try {
         const movie = await Movie.findByIdAndDelete(req.params.id);
         if (!movie) return res.status(404).json({ msg: 'Movie not found' });
@@ -70,7 +71,7 @@ app.delete('/movies/:id', auth, async (req, res) => {
     }
 });
 
-app.get('/movies/search', auth, async (req, res) => {
+router.get('/movies/search', auth, async (req, res) => {
     const { query } = req.query;  // Get search query from URL
 
     try {
@@ -87,7 +88,7 @@ app.get('/movies/search', auth, async (req, res) => {
     }
 });
 
-app.get('/movies', auth, async (req, res) => {
+router.get('/movies', auth, async (req, res) => {
     const { page = 1, limit = 10 } = req.query;  // Default values
 
     try {
@@ -107,7 +108,7 @@ app.get('/movies', auth, async (req, res) => {
 });
 
 // Route to fetch popular movies from TMDB
-app.get('/tmdb/popular', auth, async (req, res) => {
+router.get('/tmdb/popular', auth, async (req, res) => {
     try {
         const movies = await getPopularMovies();
         res.status(200).json(movies);
@@ -117,7 +118,7 @@ app.get('/tmdb/popular', auth, async (req, res) => {
 });
 
 // Route to search movies on TMDB by title
-app.get('/tmdb/search', auth, async (req, res) => {
+router.get('/tmdb/search', auth, async (req, res) => {
     const { query } = req.query;
     
     if (!query) return res.status(400).json({ message: 'Query is required' });
@@ -131,7 +132,7 @@ app.get('/tmdb/search', auth, async (req, res) => {
 });
 
 // Route to get details of a specific movie by ID from TMDB
-app.get('/tmdb/movie/:id', auth, async (req, res) => {
+router.get('/tmdb/movie/:id', auth, async (req, res) => {
     const { id } = req.params;
     
     try {
@@ -142,7 +143,7 @@ app.get('/tmdb/movie/:id', auth, async (req, res) => {
     }
 });
 
-app.get('/tmdb/movie/:id', auth, async (req, res) => {
+router.get('/tmdb/movie/:id', auth, async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -170,3 +171,5 @@ app.get('/tmdb/movie/:id', auth, async (req, res) => {
         res.status(500).json({ message: 'Failed to fetch or save movie details' });
     }
 });
+
+module.exports = router;

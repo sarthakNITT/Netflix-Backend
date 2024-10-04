@@ -1,7 +1,10 @@
 require('dotenv').config();
 const axios = require('axios');
+
 const TMDB_API_KEY = process.env.API_KEY; // Replace with your API key
+
 const BASE_URL = 'https://api.themoviedb.org/3';
+
 if (!process.env.MONGODB_URL || !process.env.JWT_SECRET_CODE || !process.env.API_KEY) {
     console.error('Please set all environment variables');
     process.exit(1);

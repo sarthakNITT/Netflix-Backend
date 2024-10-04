@@ -40,17 +40,19 @@ router.post('/signup', [
         user = new User({
             username,
             email,
-            hashedPassword
+            password
         });
 
         await user.save();
-        res.send('User Created')
         
         // Create and sign JWT token
         const payload = { user: { id: user.id } };
         const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
 
-        res.json({ token });
+        res.status(201).json({
+            message: 'User created',
+            token: token
+        });
     } catch (error) {
         console.error(error.message);
         res.status(500).send('Server Error')
