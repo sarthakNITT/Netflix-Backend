@@ -88,6 +88,7 @@ router.post('/login', [
         const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
 
         res.json({ token });
+        console.log(`Token: ${token}`);
     } catch (error) {
         console.error(error.message);
         res.status(500).send('Server error');

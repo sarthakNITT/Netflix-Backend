@@ -11,6 +11,10 @@ const userRoutes = require('./route/user');
 // Import the routes from movie.js
 const movieRoutes = require('./route/movie');
 
+const watchlistRoutes = require('./route/watchlist');
+const continueWatchingRoutes = require('./route/continueWatching');
+const profileRoutes = require('./route/profile');
+
 //Middleware to parse the json files
 app.use(express.json()) 
 
@@ -21,6 +25,9 @@ app.get('/', (req,res)=>{
 // Use the routes from user.js
 app.use('/api/auth', userRoutes); // All routes will be prefixed with /api/auth
 app.use('/api', movieRoutes); // All routes will be prefixed with /api
+app.use('/api', watchlistRoutes);
+app.use('/api', continueWatchingRoutes);
+app.use('/api', profileRoutes);
 
 connectDB();
 
